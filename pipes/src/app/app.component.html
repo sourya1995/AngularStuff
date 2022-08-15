@@ -1,0 +1,6 @@
+<p>{{name | titlecase}}</p>
+<p>{{ todaysDate | date: 'dd-MM-yyyy'}}</p>
+<p>{{ cost | double: 2 : true}}</p>
+<p>{{ temperature | number: '1.2-3' }}</p>
+<pre>{{ DBZ | json }}</pre>
+<p *ngIf="(cost | double) > 3000">Show me!</p>
