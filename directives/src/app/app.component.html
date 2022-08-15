@@ -1,0 +1,28 @@
+<ul class="pagination">
+  <li class="page-item" [appClass]="{disabled: activeImg === 0}">
+    <a href="#" class="page-link" (click)="activeImg = activeImg -1">Previous</a>
+  </li>
+  <ng-container *appLoop="let img of images; let i = index;">
+    <li class="page-item" [appClass]="{active: i === activeImg}" *ngIf="showImage(i)">
+      <a href="#" class="page-link" (click)="activeImg = i">{{ i+1 }}</a>
+    </li>
+  </ng-container>
+  <li class="page-item" [appClass]="{disabled: activeImg === images.length - 1}">
+    <a href="#" class="page-link" (click)="activeImg = activeImg + 1">Next</a>
+  </li>
+</ul>
+
+<div class="col-3">
+  <div class="card">
+    <img [src]="images[activeImg].url" class="card-img-top">
+    <div class="card-body">
+      <h5 class="card-title">{{ images[activeImg].title }}</h5>
+      <ng-container [ngSwitch]="images[activeImg].downloadable">
+        <p class="card-text" *ngSwitchCase="1">Downloadable</p>
+        <p class="card-text" *ngSwitchCase="2">Purchasable</p>
+        <p class="card-text" *ngSwitchDefault>Not Downloadable</p>
+
+      </ng-container>
+    </div>
+  </div>
+</div>
