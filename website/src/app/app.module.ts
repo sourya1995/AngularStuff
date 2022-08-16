@@ -15,9 +15,6 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
   ],
   imports: [
     BrowserModule,
-    HomeModule,
-    AboutModule,
-    ContactModule,
     AppRoutingModule,
   ],
   providers: [],
