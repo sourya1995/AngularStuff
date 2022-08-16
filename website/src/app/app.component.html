@@ -1,1 +1,21 @@
-<app-home-main></app-home-main>
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <a class="navbar-brand" routerLink="/">Website</a>
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item" routerLinkActive="active">
+                <a class="nav-link" routerLink="/about">About</a>
+            </li>
+            <li class="nav-item" routerLinkActive="active">
+                <a class="nav-link" routerLink="/contact">Contact</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<main class="container">
+    <div class="card">
+        <div class="card-body">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</main>

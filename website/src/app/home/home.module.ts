@@ -13,6 +13,6 @@ import { HomeMainComponent } from './home-main/home-main.component';
     CommonModule,
     HomeRoutingModule
   ],
-  exports: [HomeMainComponent]
+  exports: []
 })
 export class HomeModule { }
