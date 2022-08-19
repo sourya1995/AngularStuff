@@ -16,8 +16,8 @@ export class AppComponent {
 
     this.query = query;
     
-    this.cocktail.search(query).subscribe((response: any) => {
-      this.drinks = response.drinks; //response's drinks will be in our drinks 
+    this.cocktail.search(query).subscribe((response: any) => { //TODO 
+      this.drinks = response; //response's drinks will be in our drinks 
     })
   }
 }
