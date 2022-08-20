@@ -1,0 +1,21 @@
+<div class="container">
+  <div class="card mt-3">
+    <form class="card-body" #emailFormGroup="ngForm" (ngSubmit)="handleSubmit()">
+      <label>E-mail</label>
+      <input type="email" pattern=".+@.+\..+" required #emailFormControl="ngModel" class="form-control"
+        name="emailInput" [(ngModel)]="email"
+        [ngClass]="{'is-invalid' : emailFormControl.invalid && emailFormControl.touched}">
+      <ng-container *ngIf="emailFormControl.invalid && emailFormControl.touched">
+        <div *ngIf="emailFormControl.errors.required" class="invalid-feedback">
+          Please fill in the field.
+        </div>
+        <div *ngIf="emailFormControl.errors.pattern" class="invalid-feedback">
+          Invalid format.
+        </div>
+      </ng-container>
+
+      <hr class="mb-4">
+      <button class="btn btn-primary" type="submit" [disabled]="emailFormGroup.invalid">Submit</button>
+    </form>
+  </div>
+</div>
