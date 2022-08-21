@@ -19,6 +19,9 @@ import { provideMessaging,getMessaging } from '@angular/fire/messaging';
 import { providePerformance,getPerformance } from '@angular/fire/performance';
 import { provideRemoteConfig,getRemoteConfig } from '@angular/fire/remote-config';
 import { provideStorage,getStorage } from '@angular/fire/storage';
+import { AngularFireModule } from '@angular/fire/compat';
+import { SecretComponent } from './secret/secret.component';
+import { LogoutComponent } from './logout/logout.component';
 
 
 
@@ -28,7 +31,9 @@ import { provideStorage,getStorage } from '@angular/fire/storage';
     AppComponent,
     LoginComponent,
     RegisterComponent,
-    InputComponent
+    InputComponent,
+    SecretComponent,
+    LogoutComponent
     
   ],
   imports: [
@@ -36,6 +41,7 @@ import { provideStorage,getStorage } from '@angular/fire/storage';
     AppRoutingModule,
     ReactiveFormsModule,
     HttpClientModule,
+    AngularFireModule.initializeApp(environment.firebase),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
     provideAnalytics(() => getAnalytics()),

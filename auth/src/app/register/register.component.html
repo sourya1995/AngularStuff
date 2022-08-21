@@ -1,7 +1,10 @@
 <div class="alert alert-danger" *ngIf="registerForm.errors && registerForm.errors.mismatch">
     Passwords don't match
 </div>
-<form [formGroup]="registerForm">
+<div class="alert alert-danger" *ngIf="registerForm.errors && registerForm.errors.registrationFailed">
+    Registration Failed
+</div>
+<form [formGroup]="registerForm" (ngSubmit)="register()">
     <div class="form-group">
         <label>Email Address</label>
         <app-input [control]="registerForm.get('email')"></app-input>
@@ -20,5 +23,3 @@
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 
-<div>{{ registerForm.value | json}}</div>
-<div>{{ registerForm.errors | json }}</div>

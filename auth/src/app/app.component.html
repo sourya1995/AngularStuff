@@ -4,12 +4,24 @@
   </a>
   <div class="collapse navbar-collapse">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/">Login</a>
-      </li>
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/register">Register</a>
-      </li>
+      <ng-container *ngIf="authService.userData; else notLoggedIn">
+        <li class="nav-item" routerLinkActive="active">
+          <a class="nav-link" routerLink="/secret">Secret</a>
+        </li>
+        <li class="nav-item" routerLinkActive="active">
+          <a class="nav-link" routerLink="/logout">Logout</a>
+        </li>
+
+      </ng-container>
+      <ng-template #notLoggedIn>
+        <li class="nav-item" routerLinkActive="active">
+          <a class="nav-link" routerLink="/">Login</a>
+        </li>
+        <li class="nav-item" routerLinkActive="active">
+          <a class="nav-link" routerLink="/register">Register</a>
+        </li>
+      </ng-template>
+
     </ul>
   </div>
 </nav>
