@@ -1,0 +1,21 @@
+<input [type]="type" class="form-control" [formControl]="control" [ngClass]="{ 'is-invalid' : showMsg() }">
+<ng-container *ngIf="showMsg()">
+    <div *ngIf="control.errors.required" class="invalid-feedback">
+        Please fill in the field.
+    </div>
+    <div *ngIf="control.errors.minlength" class="invalid-feedback">
+        The value you inputted is {{ control.errors.minlength.actualLength }}
+        characters long.
+        It must be at least {{ control.errors.minlength.requiredLength }}
+        characters long.
+    </div>
+    <div *ngIf="control.errors.maxlength" class="invalid-feedback">
+        The value you inputted is {{ control.errors.maxlength.actualLength }}
+        characters long.
+        It can't be longer than {{ control.errors.maxlength.requiredLength }}
+        characters long.
+    </div>
+    <div *ngIf="control.errors.compromised" class="invalid-feedback">
+        Password is unsafe. Please choose another.
+    </div>
+</ng-container>

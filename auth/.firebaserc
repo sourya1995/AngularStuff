@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "angular-auth-ca936": {
+      "hosting": {
+        "auth": [
+          "angular-auth-ca936"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "angular-auth-ca936"
+  }
+}
