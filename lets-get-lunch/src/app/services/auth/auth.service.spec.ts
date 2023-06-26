@@ -3,6 +3,11 @@ import { TestBed } from '@angular/core/testing';
 import { AuthService } from './auth.service';
 import { HttpClientTestingModule , HttpTestingController} from '@angular/common/http/testing';
 import { of } from 'rxjs';
+import { JwtModule, JwtHelperService } from '@auth0/angular-jwt';
+
+function tokenGetter(){
+  return localStorage.getItem('Authorization');
+}
 
 fdescribe('AuthService', () => {
   let authService: AuthService;
@@ -10,8 +15,13 @@ fdescribe('AuthService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule], 
-      providers: [AuthService] });
+      imports: [HttpClientTestingModule,
+      JwtModule.forRoot({
+        config: {
+          tokenGetter: tokenGetter
+        }
+      })], 
+      providers: [AuthService, JwtHelperService] });
 
     authService = TestBed.get(AuthService);
     http = TestBed.get(HttpTestingController);
@@ -78,6 +88,18 @@ fdescribe('AuthService', () => {
       expect(localStorage.getItem('Authorization')).toEqual('someToken');
       http.verify();
     })
-  }
+  })
+
+  describe('isLoggedIn', () => {
+    it('should return true if the user is logged in', () => {
+      localStorage.setItem('Authorization', 'someToken');
+      expect(authService.isLoggedIn()).toEqual(true);
+    });
+
+    it('should return false if the user is not logged in', () => {
+      localStorage.removeItem('Authorization');
+      expect(authService.isLoggedIn()).toEqual(false);
+    });
+  });
 
 });
