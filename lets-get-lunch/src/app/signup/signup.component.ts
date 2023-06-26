@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { User } from '../services/auth/user';
 import { AuthService } from '../services/auth/auth.service';
 import { DietaryPreferencesService } from '../services/dietary-preferences/dietary-preferences.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-signup',
@@ -14,7 +15,7 @@ export class SignupComponent implements OnInit {
 
   errorMessage: string;
 
-  constructor(private authService: AuthService, private dietaryPreferencesService: DietaryPreferencesService) {
+  constructor(private authService: AuthService, private dietaryPreferencesService: DietaryPreferencesService, private router: Router) {
     
   }
 
@@ -25,7 +26,7 @@ export class SignupComponent implements OnInit {
   signup(credentials: User){
     credentials.dietPreferences = this.getSelectedPreferences();
     this.authService.signup(credentials).subscribe(res => {
-      console.log('res',res);
+      this.router.navigate(['/dashboard']);
     }, err => {
       this.errorMessage = err.error.errorMessage;
     });

@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SignupComponent } from './signup.component';
 import { SignupModule } from './signup.module';
 import { AuthService } from '../services/auth/auth.service';
+import { Router } from '@angular/router';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
@@ -10,6 +11,10 @@ import { of } from 'rxjs';
 
 class MockAuthService {
   signup(credentials){}
+}
+
+class MockRouter {
+  navigate(path){}
 }
 
 class SignupPage {
@@ -31,6 +36,7 @@ let component: SignupComponent;
 let fixture: ComponentFixture<SignupComponent>;
 let signupPage: SignupPage;
 let authService: AuthService;
+let router: Router;
 
 describe('SignupComponent', () => {
 
@@ -42,7 +48,8 @@ describe('SignupComponent', () => {
     }).overrideComponent(SignupComponent, {
       set: {
         providers: [ 
-          {provide: AuthService, useClass: MockAuthService}
+          {provide: AuthService, useClass: MockAuthService},
+          { provide: Router, useClass: MockRouter}
         ]
       }
     }).compileComponents();
@@ -56,6 +63,7 @@ describe('SignupComponent', () => {
     component = fixture.componentInstance;
     signupPage = new SignupPage();
     authService = fixture.debugElement.injector.get(AuthService);
+    router = fixture.debugElement.injector.get(Router);
     fixture.detectChanges();
     return fixture.whenStable().then(() => {
       fixture.detectChanges();
@@ -78,6 +86,7 @@ describe('SignupComponent', () => {
     spyOn(authService, 'signup').and.callFake(() => {
       return of({token: 'sometoken'});
     });
+    spyOn(router, 'navigate');
 
     signupPage.submitBtn.nativeElement.click();
 
@@ -86,6 +95,8 @@ describe('SignupComponent', () => {
       password: 'password',
       dietPreferences: ['BBQ', 'Burger']
     });
+
+    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 
   it('should display an error message with invalid credentials', () => {
