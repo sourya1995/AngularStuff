@@ -7,6 +7,7 @@ import { HomeComponent } from './home/home.component';
 import { HttpClientModule } from '@angular/common/http';
 import { JwtModule } from '@auth0/angular-jwt';
 import { NavbarComponent } from './navbar/navbar.component';
+import { LoginComponent } from './login/login.component';
 
 export function tokenGetter(){
   return localStorage.getItem('Authorization');
@@ -16,7 +17,7 @@ export function tokenGetter(){
   declarations: [
     AppComponent,
     HomeComponent,
-    NavbarComponent
+   
   ],
   imports: [
     BrowserModule,

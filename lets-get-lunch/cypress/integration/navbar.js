@@ -12,6 +12,10 @@ describe ('Navbar', () =>{
             cy.get('[data-test=signup]').click().url().should('include', '/signup');
         });
 
+        it('should show a link to login', () => {
+            cy.get('[data-test=login]').click().url().should('include', '/login')
+        });
+
         it('should redirect to the base url when the navbar brand is clicked', () => {
             cy.get('.navbar-brand').click().url().should('include', '/');
         });
@@ -30,5 +34,7 @@ describe ('Navbar', () =>{
         it('should redirect to the dashboard when the navbar brand is clicked', () => {
             cy.get('.navbar-brand').click().url().should('include', '/dashboard');
         });
+
+       
     });
 })
