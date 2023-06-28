@@ -10,6 +10,15 @@ import { DashboardModule } from './dashboard.module';
 import { AuthService } from '../services/auth/auth.service';
 import { EventsService } from '../services/events/events.service';
 import { Event } from '../services/events/event';
+import { Router } from '@angular/router';
+
+// src/app/dashboard/dashboard.component.spec.ts
+
+class MockRouter {
+  navigate(path) { }
+}
+
+
 
 const currentUser = {
   'username': 'myUser',
@@ -38,7 +47,7 @@ class MockAuthService {
 
 class MockEventsService {
   getUserEvents = jasmine.createSpy('getUserEvents')
-                         .and.callFake(() => of(events));
+    .and.callFake(() => of(events));
 }
 
 describe('DashboardComponent', () => {
@@ -48,8 +57,10 @@ describe('DashboardComponent', () => {
   let eventsService: EventsService;
   let viewDateElement: DebugElement[];
   let calendarEventElement: DebugElement[];
+  let eventLink: DebugElement[];
+  let router: Router;
 
-  beforeEach(async() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
       imports: [
         DashboardModule,
@@ -58,32 +69,36 @@ describe('DashboardComponent', () => {
         ])
       ]
     })
-    .overrideComponent(DashboardComponent, {
-      set: {
-        providers: [
-          { provide: AuthService, useClass: MockAuthService },
-          { provide: EventsService, useClass: MockEventsService }
-        ]
-      }
-    }).compileComponents();
+      .overrideComponent(DashboardComponent, {
+        set: {
+          providers: [
+            { provide: AuthService, useClass: MockAuthService },
+            { provide: EventsService, useClass: MockEventsService },
+            { provide: Router, useClass: MockRouter }
+          ]
+        }
+      }).compileComponents();
   });
 
-  beforeEach(async() => {
+  beforeEach(async () => {
     fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
 
     authService = fixture.debugElement.injector.get(AuthService);
     eventsService = fixture.debugElement.injector.get(EventsService);
+    router = fixture.debugElement.injector.get(Router);
+
 
     spyOn(component, 'addJSDate').and.callThrough();
-  spyOn(component, 'addEventColors').and.callThrough();
+    spyOn(component, 'addEventColors').and.callThrough();
     fixture.detectChanges();
     return fixture.whenStable().then(() => {
       fixture.detectChanges();
       viewDateElement = fixture.debugElement
-                               .queryAll(By.css('.toggle-view .btn-primary'));
+        .queryAll(By.css('.toggle-view .btn-primary'));
       calendarEventElement = fixture.debugElement
-                                    .queryAll(By.css('.cal-event'));
+        .queryAll(By.css('.cal-event'));
+      eventLink = fixture.debugElement.queryAll(By.css('.cal-event-title'));
     });
   });
 
@@ -110,6 +125,13 @@ describe('DashboardComponent', () => {
   it('should display events within the current week in the calendar', () => {
     expect(calendarEventElement[0].nativeElement.textContent)
       .toContain('My first event');
+  });
+
+  it('should navigate to the event view when an event is clicked', () => {
+    spyOn(router, 'navigate');
+    eventLink[0].nativeElement.click();
+    expect(router.navigate)
+      .toHaveBeenCalledWith(['/event/' + '5a55135639fbc4ca3ee0ce5a']);
   });
 
   describe('addJSDate', () => {

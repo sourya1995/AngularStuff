@@ -112,10 +112,12 @@ describe('EventsService', () => {
       service.getUserEvents(user).subscribe(res => {
         response = res;
       });
+      spyOn(service, 'formatDateTime').and.callThrough();
 
       http
         .expectOne('https://ed-4761426652823552.educative.run:3000/api/events/user/' + user)
         .flush(eventResponse);
+      expect(service.formatDateTime).toHaveBeenCalled();
       expect(response).toEqual(eventResponse);
       http.verify();
     });
@@ -136,5 +138,22 @@ describe('EventsService', () => {
       expect(errorResponse.error.message).toEqual(eventError);
       http.verify();
     });
+
+    it('should return a 404 for an event that does not exist', () => {
+      const eventError = 'This event does not exist';
+      let errorResponse;
+
+      service.get('1234').subscribe(res => { }, err => {
+        errorResponse = err;
+      });
+
+      http
+        .expectOne('https://api/events/' + '1234')
+        .flush({ message: eventError }, { status: 404, statusText: 'Not Found' });
+      expect(errorResponse.error.message).toEqual(eventError);
+      http.verify();
+    });
+
+
   });
 });
