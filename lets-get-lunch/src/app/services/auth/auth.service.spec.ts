@@ -12,6 +12,7 @@ function tokenGetter(){
 fdescribe('AuthService', () => {
   let authService: AuthService;
   let http: HttpTestingController;
+  let jwtHelper: JwtHelperService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -23,8 +24,9 @@ fdescribe('AuthService', () => {
       })], 
       providers: [AuthService, JwtHelperService] });
 
-    authService = TestBed.get(AuthService);
-    http = TestBed.get(HttpTestingController);
+    authService = TestBed.inject(AuthService);
+    http = TestBed.inject(HttpTestingController);
+    jwtHelper = TestBed.inject(JwtHelperService);
   });
 
 
@@ -114,6 +116,24 @@ fdescribe('AuthService', () => {
     it('should return false if the user is not logged in', () => {
       localStorage.removeItem('Authorization');
       expect(authService.isLoggedIn()).toEqual(false);
+    });
+  });
+
+  describe('current user', () => {
+    it('should return the current user with a valid token', () => {
+      spyOn(localStorage, 'getItem').and.callFake(() => 'someToken');
+      spyOn(jwtHelper, 'decodeToken').and.callFake(() => {
+        return {
+          exp: 1517847480,
+          iat: 1517847480,
+          username: 'username',
+          _id: '427590270957020f'
+        } as any;
+      });
+      const res = authService.currentUser();
+      expect(localStorage.getItem).toHaveBeenCalled();
+      expect(res.username).toBeDefined();
+      expect(res._id).toBeDefined();
     });
   });
 

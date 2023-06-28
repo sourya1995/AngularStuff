@@ -4,10 +4,14 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtModule } from '@auth0/angular-jwt';
 import { NavbarComponent } from './navbar/navbar.component';
 import { LoginComponent } from './login/login.component';
+import { AuthInterceptorService } from './interceptors/auth-interceptor.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AgmCoreModule } from '@agm/core';
+import { environment } from 'src/environments/environment';
 
 export function tokenGetter(){
   return localStorage.getItem('Authorization');
@@ -23,13 +27,23 @@ export function tokenGetter(){
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
+    
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter
       }
+    }),
+    BrowserAnimationsModule,
+    AgmCoreModule.forRoot({
+      apiKey: environment.googleMaps,
+      libraries: [places]
     })
   ],
-  providers: [],
+  providers: [{
+    provide: HTTP_INTERCEPTORS,
+    useClass: AuthInterceptorService,
+    multi: true
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
