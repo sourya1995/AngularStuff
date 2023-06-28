@@ -30,4 +30,8 @@ export class EventsService {
     event.displayEnd = format(event.endTime, 'dddd MMM, Do - H:mm');
     return event;
   }
+
+  all(): Observable<Event[]> {
+    return this.http.get<Event[]>('http://api.endpoint:3000/api/events');
+  }
 }

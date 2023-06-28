@@ -18,6 +18,10 @@ const routes: Routes = [{path: 'home', component: HomeComponent},
 {
   path: 'event',
   loadChildren: () => import('./event/event.module').then(m => m.EventModule)
+},
+{
+  path: 'events',
+  loadChildren: () => import('./events-list/events-list.module').then(m => m.EventsListModule)
 }
 
 ];
