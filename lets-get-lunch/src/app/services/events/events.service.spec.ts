@@ -1,10 +1,11 @@
 import { TestBed } from '@angular/core/testing';
+
+import { EventsService } from './events.service';
 import {
   HttpClientTestingModule,
   HttpTestingController
 } from '@angular/common/http/testing';
 import { Event } from './event';
-import { EventsService } from './events.service';
 import { AuthService } from '../auth/auth.service';
 
 class MockAuthService {
@@ -17,7 +18,7 @@ class MockAuthService {
 }
 
 describe('EventsService', () => {
-  let eventService: EventsService;
+  let service: EventsService;
   let http: HttpTestingController;
 
   beforeEach(() => {
@@ -28,23 +29,13 @@ describe('EventsService', () => {
         { provide: AuthService, useClass: MockAuthService }
       ]
     });
-    eventService = TestBed.inject(EventsService);
-    http = TestBed.inject(HttpTestingController);
+
+    service = TestBed.get(EventsService);
+    http = TestBed.get(HttpTestingController);
   });
 
   it('should be created', () => {
-    expect(eventService).toBeTruthy();
-  });
-
-  describe('isEventCreator', () => {
-    it('should return true if the event creator is the current user', () => {
-      const id = '58dab4f21342131b8c96787f';
-      expect(service.isEventCreator(id)).toEqual(true);
-    });
-    it('should return false if the event creator is not the current user', () => {
-      const id = '12345';
-      expect(service.isEventCreator(id)).toEqual(false);
-    });
+    expect(service).toBeTruthy();
   });
 
   describe('create', () => {
@@ -76,7 +67,7 @@ describe('EventsService', () => {
       };
       let response;
 
-      eventService.create(event).subscribe(res => {
+      service.create(event).subscribe(res => {
         response = res;
       });
 
@@ -86,30 +77,30 @@ describe('EventsService', () => {
       expect(response).toEqual(eventResponse);
       http.verify();
     });
-  });
 
-  it('should return a 500 with invalid event details', () => {
-    const event: Event = {
-      '_creator': undefined,
-      'title': undefined,
-      'city': undefined,
-      'state': undefined,
-      'startTime': undefined,
-      'endTime': undefined,
-      'suggestLocations': undefined
-    };
-    const eventResponse = 'Event could not be created!';
-    let errorResponse;
+    it('should return a 500 with invalid event details', () => {
+      const event: Event = {
+        '_creator': undefined,
+        'title': undefined,
+        'city': undefined,
+        'state': undefined,
+        'startTime': undefined,
+        'endTime': undefined,
+        'suggestLocations': undefined
+      };
+      const eventResponse = 'Event could not be created!';
+      let errorResponse;
 
-    eventService.create(event).subscribe(res => { }, err => {
-      errorResponse = err;
+      service.create(event).subscribe(res => { }, err => {
+        errorResponse = err;
+      });
+
+      http
+        .expectOne('https://ed-4761426652823552.educative.run:3000/api/events')
+        .flush({ message: eventResponse }, { status: 500, statusText: 'Servor Error' });
+      expect(errorResponse.error.message).toEqual(eventResponse);
+      http.verify();
     });
-
-    http
-      .expectOne('https://ed-4761426652823552.educative.run:3000/api/events')
-      .flush({ message: eventResponse }, { status: 500, statusText: 'Servor Error' });
-    expect(errorResponse.error.message).toEqual(eventResponse);
-    http.verify();
   });
 
   describe('getUserEvents', () => {
@@ -137,16 +128,13 @@ describe('EventsService', () => {
       service.getUserEvents(user).subscribe(res => {
         response = res;
       });
-      spyOn(service, 'formatDateTime').and.callThrough();
 
       http
         .expectOne('https://ed-4761426652823552.educative.run:3000/api/events/user/' + user)
         .flush(eventResponse);
-      expect(service.formatDateTime).toHaveBeenCalled();
       expect(response).toEqual(eventResponse);
       http.verify();
     });
-
 
     it('should return a 500 if an error occurs', () => {
       const user = '5a55135639fbc4ca3ee0ce5b';
@@ -163,9 +151,48 @@ describe('EventsService', () => {
       expect(errorResponse.error.message).toEqual(eventError);
       http.verify();
     });
+  });
 
-    it('should return a 404 for an event that does not exist', () => {
-      const eventError = 'This event does not exist';
+  describe('get', () => {
+    it('should return an event object with a valid event id', () => {
+      const eventId = '5a55135639fbc4ca3ee0ce5a';
+      const eventResponse: Event = {
+        '_id': '5a55135639fbc4ca3ee0ce5a',
+        '_creator': '5a550ea739fbc4ca3ee0ce58',
+        'title': 'My first event',
+        'description': 'My first description',
+        'city': 'Atlanta',
+        'state': 'GA',
+        'startTime': '2018-01-09T19:00:00.000Z',
+        'endTime': '2018-01-09T20:00:00.000Z',
+        '__v': 0,
+        'suggestLocations': true,
+        'members': [
+          {
+            '_id': '5a550ea739fbc4ca3ee0ce58',
+            'username': 'newUser',
+            '__v': 0,
+            'dietPreferences': []
+          }
+        ]
+      };
+      let response;
+
+      service.get(eventId).subscribe(res => {
+        response = res;
+      });
+      spyOn(service, 'formatDateTime').and.callThrough();
+
+      http
+        .expectOne('https://ed-4761426652823552.educative.run:3000/api/events/' + eventId)
+        .flush(eventResponse);
+      expect(service.formatDateTime).toHaveBeenCalled();
+      expect(response).toEqual(eventResponse);
+      http.verify();
+    });
+
+    it('should return a 404 for an event id that does not exist', () => {
+      const eventError = 'This event does not exist.';
       let errorResponse;
 
       service.get('1234').subscribe(res => { }, err => {
@@ -173,124 +200,196 @@ describe('EventsService', () => {
       });
 
       http
-        .expectOne('https://api/events/' + '1234')
+        .expectOne('https://ed-4761426652823552.educative.run:3000/api/events/' + '1234')
         .flush({ message: eventError }, { status: 404, statusText: 'Not Found' });
       expect(errorResponse.error.message).toEqual(eventError);
       http.verify();
     });
-
-
   });
 
-  // src/app/services/events/events.service.spec.ts
+  describe('all', () => {
+    it('should return an array of all events', () => {
+      const events: Array<Event> = [{
+        '_id': '5a539459b689d341cccc4be8',
+        '_creator': '5a539449b689d341cccc4be7',
+        'title': 'Another event',
+        'description': 'Another event description',
+        'city': 'Atlanta',
+        'state': 'GA',
+        'startTime': '2018-01-08T05:00:00.000Z',
+        'endTime': '2018-01-09T05:00:00.000Z',
+        '__v': 0,
+        'suggestLocations': false,
+        'members': [
+          '5a539449b689d341cccc4be7'
+        ]
+      }];
+      let response;
 
-describe('all', () => {
-  it('should return an array of all events', () => {
-    const events: Array<Event> = [{
-      '_id': '5a539459b689d341cccc4be8',
-      '_creator': '5a539449b689d341cccc4be7',
-      'title': 'Another event',
-      'description': 'Another event description',
-      'city': 'Atlanta',
-      'state': 'GA',
-      'startTime': '2018-01-08T05:00:00.000Z',
-      'endTime': '2018-01-09T05:00:00.000Z',
-      '__v': 0,
-      'suggestLocations': false,
-      'members': [
-        '5a539449b689d341cccc4be7'
-      ]
-    }];
-    let response;
+      service.all().subscribe(res => {
+        response = res;
+      });
 
-    service.all().subscribe(res => {
-      response = res;
+      http
+        .expectOne('https://ed-4761426652823552.educative.run:3000/api/events')
+        .flush(events);
+      expect(response).toEqual(events);
+      http.verify();
     });
 
-    http
-      .expectOne('https://ed-4761426652823552.educative.run:3000/api/events')
-      .flush(events);
-    expect(response).toEqual(events);
-    http.verify();
+    it('should return an error if there\'s a server error', () => {
+      const error = 'Something went wrong!';
+      let errorResponse;
+
+      service.all().subscribe(res => { }, err => {
+        errorResponse = err;
+      });
+
+      http
+        .expectOne('https://ed-4761426652823552.educative.run:3000/api/events')
+        .flush({ message: error }, { status: 500, statusText: 'Server Error' });
+      expect(errorResponse.error.message).toEqual(error);
+      http.verify();
+    });
   });
 
-  it('should return an error if there\'s a server error', () => {
-    const error = 'Something went wrong!';
-    let errorResponse;
-
-    service.all().subscribe(res => {}, err => {
-      errorResponse = err;
+  describe('isEventCreator', () => {
+    it('should return true if the event creator is the current user', () => {
+      const id = '58dab4f21342131b8c96787f';
+      expect(service.isEventCreator(id)).toEqual(true);
     });
 
-    http
-      .expectOne('https://ed-4761426652823552.educative.run:3000/api/events')
-      .flush({message: error}, {status: 500, statusText: 'Server Error'});
-    expect(errorResponse.error.message).toEqual(error);
-    http.verify();
+    it('should return false if the event creator is not the current user', () => {
+      const id = '12345';
+      expect(service.isEventCreator(id)).toEqual(false);
+    });
   });
-});
 
-// src/app/services/events/events.service.spec.ts
+  describe('subscribe', () => {
+    it('should return an event with an updated members list', () => {
+      const eventId = '5a55135639fbc4ca3ee0ce5a';
+      const subscriber = { user: '5a539449b689d341cccc4be7' };
+      const subscribeResponse: Event = {
+        '_id': '5a55135639fbc4ca3ee0ce5a',
+        '_creator': '5a550ea739fbc4ca3ee0ce58',
+        'title': 'My first updated event',
+        'description': 'My first updated description',
+        'city': 'Miami',
+        'state': 'FL',
+        'startTime': '2018-01-09T19:00:00.000Z',
+        'endTime': '2018-01-09T20:00:00.000Z',
+        '__v': 1,
+        'suggestLocations': true,
+        'members': [
+          {
+            '_id': '5a550ea739fbc4ca3ee0ce58',
+            'username': 'newUser',
+            '__v': 0,
+            'dietPreferences': []
+          },
+          {
+            '_id': '5a539449b689d341cccc4be7',
+            'username': 'adam',
+            '__v': 0,
+            'dietPreferences': []
+          }
+        ]
+      };
+      let response;
 
-describe('subscribe', () => {
-  it('should return an event with an updated members list', () => {
-    const eventId = '5a55135639fbc4ca3ee0ce5a';
-    const subscriber = { user: '5a539449b689d341cccc4be7' };
-    const subscribeResponse: Event = {
-      '_id': '5a55135639fbc4ca3ee0ce5a',
-      '_creator': '5a550ea739fbc4ca3ee0ce58',
-      'title': 'My first updated event',
-      'description': 'My first updated description',
-      'city': 'Miami',
-      'state': 'FL',
-      'startTime': '2018-01-09T19:00:00.000Z',
-      'endTime': '2018-01-09T20:00:00.000Z',
-      '__v': 1,
-      'suggestLocations': true,
-      'members': [
-        {
-          '_id': '5a550ea739fbc4ca3ee0ce58',
-          'username': 'newUser',
-          '__v': 0,
-          'dietPreferences': []
-        },
-        {
-          '_id': '5a539449b689d341cccc4be7',
-          'username': 'adam',
-          '__v': 0,
-          'dietPreferences': []
-        }
-      ]
-    };
-    let response;
+      service.subscribe(eventId, subscriber).subscribe(res => {
+        response = res;
+      });
 
-    service.subscribe(eventId, subscriber).subscribe(res => {
-      response = res;
+      http
+        .expectOne('https://ed-4761426652823552.educative.run:3000/api/events/' + eventId + '/subscribe')
+        .flush(subscribeResponse);
+      expect(response).toEqual(subscribeResponse);
+      http.verify();
     });
 
-    http
-      .expectOne('https://ed-4761426652823552.educative.run:3000/api/events/' + eventId + '/subscribe')
-      .flush(subscribeResponse);
-    expect(response).toEqual(subscribeResponse);
-    http.verify();
-  });
-  it('should return an error if a user cannot be subscribed to an event', () => {
-    const eventId = '5a55135639fbc4ca3ee0ce5a';
-    const subscriber = { user: '5a539449b689d341cccc4be7' };
-    const error = 'Something went wrong. Try again.';
-    let errorResponse;
+    it('should return an error if a user cannot be subscribed to an event', () => {
+      const eventId = '5a55135639fbc4ca3ee0ce5a';
+      const subscriber = { user: '5a539449b689d341cccc4be7' };
+      const error = 'Something went wrong. Try again.';
+      let errorResponse;
 
-    service.subscribe(eventId, subscriber).subscribe(res => {}, err => {
-      errorResponse = err;
+      service.subscribe(eventId, subscriber).subscribe(res => { }, err => {
+        errorResponse = err;
+      });
+
+      http
+        .expectOne('https://ed-4761426652823552.educative.run:3000/api/events/' + eventId + '/subscribe')
+        .flush({ message: error }, { status: 500, statusText: 'Server Error' });
+      expect(errorResponse.error.message).toEqual(error);
+      http.verify();
+    });
+  });
+
+  describe('update', () => {
+    it('should return an updated event with valid event details', () => {
+      const updatedEvent: Event = {
+        '_id': '5a55135639fbc4ca3ee0ce5a',
+        '_creator': '5a550ea739fbc4ca3ee0ce58',
+        'title': 'My first updated event',
+        'description': 'My first updated description',
+        'city': 'Miami',
+        'state': 'FL',
+        'startTime': '2018-01-09T19:00:00.000Z',
+        'endTime': '2018-01-09T20:00:00.000Z',
+        'suggestLocations': true,
+      };
+      const updatedEventResponse = {
+        '_id': '5a55135639fbc4ca3ee0ce5a',
+        '_creator': '5a550ea739fbc4ca3ee0ce58',
+        'title': 'My first updated event',
+        'description': 'My first updated description',
+        'city': 'Miami',
+        'state': 'FL',
+        'startTime': '2018-01-09T19:00:00.000Z',
+        'endTime': '2018-01-09T20:00:00.000Z',
+        '__v': 0,
+        'suggestLocations': true,
+        'members': [
+          '5a550ea739fbc4ca3ee0ce58'
+        ]
+      };
+      let response;
+
+      service.update(updatedEvent).subscribe(res => {
+        response = res;
+      });
+
+      http
+        .expectOne('https://ed-4761426652823552.educative.run:3000/api/events/' + updatedEvent._id)
+        .flush(updatedEventResponse);
+      expect(response).toEqual(updatedEventResponse);
+      http.verify();
     });
 
-    http
-      .expectOne('https://ed-4761426652823552.educative.run:3000/api/events/' + eventId + '/subscribe')
-      .flush({message: error}, {status: 500, statusText: 'Server Error'});
-    expect(errorResponse.error.message).toEqual(error);
-    http.verify();
+    it('should return a 500 with invalid event details', () => {
+      const event: Event = {
+        '_id': undefined,
+        '_creator': undefined,
+        'title': undefined,
+        'city': undefined,
+        'state': undefined,
+        'startTime': undefined,
+        'endTime': undefined,
+        'suggestLocations': undefined
+      };
+      const eventResponse = 'Event could not be updated!';
+      let errorResponse;
+
+      service.update(event).subscribe(res => { }, err => {
+        errorResponse = err;
+      });
+
+      http
+        .expectOne('https://ed-4761426652823552.educative.run:3000/api/events/' + event._id)
+        .flush({ message: eventResponse }, { status: 500, statusText: 'Server Error' });
+      expect(errorResponse.error.message).toEqual(eventResponse);
+      http.verify();
+    });
   });
-});
-
-
 });

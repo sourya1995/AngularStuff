@@ -8,6 +8,7 @@ import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
 import { EventViewComponent } from './event-view/event-view.component';
 import { CommentCreateComponent } from '../comment-create/comment-create.component';
 import { MemberListModule } from '../member-list/member-list.module';
+import { RecommendationsListModule } from '../recommendations-list/recommendations-list.module';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { MemberListModule } from '../member-list/member-list.module';
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
     CommentCreateModule,
-    MemberListModule
+    MemberListModule,
+    RecommendationsListModule
   ]
 })
 export class EventModule { }

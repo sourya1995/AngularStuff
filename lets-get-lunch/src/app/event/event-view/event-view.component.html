@@ -34,6 +34,7 @@
 
         <div class="col-md-4">
             <app-member-list *ngIf="event" [eventId]="eventId" [creatorId]="event._creator" [members]="event.members"></app-member-list>
+            <app-recommendations-list *ngIf="event" [eventId]="eventId" [suggestLocations]="event.suggestLocations"></app-recommendations-list>
         </div>
     </div>
 </div>
