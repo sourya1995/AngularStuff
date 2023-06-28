@@ -11,6 +11,7 @@ import { Event } from 'src/app/services/events/event';
 export class EventViewComponent implements OnInit {
   event: Event;
   eventId: string;
+  isCreator: boolean;
 
   constructor(private eventsService: EventsService, private activatedRoute: ActivatedRoute){
     
@@ -21,6 +22,7 @@ export class EventViewComponent implements OnInit {
       this.eventId = params['id'];
       this.eventsService.get(this.eventId).subscribe(res => {
         this.event = res;
+        this.isCreator = this.eventsService.isEventCreator(this.event._creator);
       })
   }
 }
