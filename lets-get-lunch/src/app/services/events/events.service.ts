@@ -14,4 +14,8 @@ export class EventsService {
   create(event: Event): Observable<Event>{
     return this.http.post<Event>('http://api.endpoint:3000/api/events', event);
   }
+
+  getUserEvents(userId: string): Observable<Event[]> {
+    return this.http.get<Event[]>(`http://api.endpoint:3000/api/events/user'/${userId}`); 
+  }
 }
